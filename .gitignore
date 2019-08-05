@@ -1,2 +1,16 @@
-*.class
-*.log
+# Add any directories, files, or patterns you don't want to be tracked by version control
+/target
+/.idea
+/project/project
+/project/target
+logs/
+logs
+sbt.*
+sbt-dist/
+sbt
+.vscode/
+
+test\.png
+
+# OS Generated file
+.DS_Store
