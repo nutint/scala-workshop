@@ -13,11 +13,15 @@ class FutureExample {
 
   val power = (x: Int) => x * x
 
+  val powerWithout10 = (x: Int) =>
+    if(x == 10) throw new Exception("unable to compute 10")
+    else x * x
+
   def getDuration(startTime: Long): Long =
     System.currentTimeMillis() - startTime
 
 
-  def demo: Unit = timedExecuting(5000, sequentialExecuting _)
+  def demo: Unit = timedExecuting(5000, dependenciesBetweenFutures _)
 
   def timedExecuting(waitTime: Int, fn: Long => Unit): Unit = {
     val t0 = System.currentTimeMillis()
@@ -58,7 +62,19 @@ class FutureExample {
       .foreach(total => {
         println(s"Total summary result of power 1 to 10 is $total (${getDuration(startTime)} ms)")
       })
+  }
 
+  def dependenciesBetweenFutures(startTime: Long): Unit = {
+    val result: Future[Int] = for {
+      result1 <- Future(delayedComputation(power, 1000)(5))
+      result2 <- Future(delayedComputation(powerWithout10, 1000)(10))
+      result3 <- Future(delayedComputation(power, 1000)(result2 - result1))
+    } yield result1 + result2 + result3
+
+    result.onComplete {
+      case Success(x) => println(s"result= $x (${getDuration(startTime)} ms)")
+      case Failure(ex) => println(s"result failed by $ex (${getDuration(startTime)} ms)")
+    }
   }
 
 
