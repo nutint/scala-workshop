@@ -33,4 +33,31 @@ class FunctionSpec extends FreeSpec with Matchers {
     }
 
   }
+
+  "higher order function" in {
+
+    case class MySet[A](fn: A=>Boolean) {
+      def isMember(a: A): Boolean = fn(a)
+      def union(mySet: MySet[A]) = MySet((a: A) => fn(a) || mySet.fn(a))
+      def intersect(mySet: MySet[A]) = MySet((a: A) => fn(a) && mySet.fn(a))
+    }
+
+    val countNumberSet = MySet((x: Int) => x > 0)
+    val evenNumberSet = MySet((x: Int) => x % 2 == 0)
+    val oddNumberSet = MySet((x: Int) => x % 2 == 1)
+
+    countNumberSet.isMember(-1) shouldBe false
+    countNumberSet.isMember(0) shouldBe false
+    countNumberSet.isMember(1) shouldBe true
+
+    val countEvenNumberSet = countNumberSet intersect evenNumberSet
+    countEvenNumberSet.isMember(0) shouldBe false
+    countEvenNumberSet.isMember(1) shouldBe false
+    countEvenNumberSet.isMember(2) shouldBe true
+
+    val countOddNumberSet = countNumberSet intersect oddNumberSet
+    countOddNumberSet.isMember(0) shouldBe false
+    countOddNumberSet.isMember(1) shouldBe true
+    countOddNumberSet.isMember(2) shouldBe false
+  }
 }
