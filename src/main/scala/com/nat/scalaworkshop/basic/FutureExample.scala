@@ -6,47 +6,59 @@ import scala.util.{Success, Failure}
 
 class FutureExample {
 
-  val delayedComputation = (computation: Int => Int, delayValue: Int) => (x: Int) => {
-    Thread.sleep(delayValue)
+  val delayedComputation = (computation: Int => Int, fakeDelayValue: Int) => (x: Int) => {
+    Thread.sleep(fakeDelayValue)
     computation(x)
   }
 
   val power = (x: Int) => x * x
 
-  def demo: Unit = timedExecuting(5000, parallelExecuting _)
+  def getDuration(startTime: Long): Long =
+    System.currentTimeMillis() - startTime
 
-  def timedExecuting(waitTime: Int, fn: () => Unit): Unit = {
+
+  def demo: Unit = timedExecuting(5000, sequentialExecuting _)
+
+  def timedExecuting(waitTime: Int, fn: Long => Unit): Unit = {
     val t0 = System.currentTimeMillis()
-    fn()
-    val t1 = System.currentTimeMillis()
-    println(Console.BLUE + s"Total time usage = ${t1 - t0} millis" + Console.RESET)
+    println(Console.RED + "Start executing")
+    fn(t0)
+    println(Console.BLUE + s"Total time usage = ${getDuration(t0)} millis" + Console.RESET)
+    println(Console.BLUE + s"Wait time = $waitTime millis" + Console.RESET)
     Thread.sleep(waitTime)
   }
 
-  def sequentialExecuting: Unit = {
-    println(Console.RED + "Start executing")
+  def sequentialExecuting(startTime: Long): Unit = {
     val result = delayedComputation(power, 1000)(5)
     println(s"result from very long computation is $result")
     val result2 = delayedComputation(power, 2000)(7)
     println(s"result from very long computation is $result2")
-    println("Finished executing" + Console.RESET)
   }
 
-  def parallelExecuting: Unit = {
-    println(Console.RED + "Start executing")
+  def parallelExecuting(startTime: Long): Unit = {
     val result = Future(delayedComputation(power, 1000)(5))
-    println(s"result from very long computation is $result")
     val result2 = Future(delayedComputation(power, 2000)(7))
-    println(s"result from very long computation is $result2")
     result.onComplete {
-      case Success(x) => println(s"result1 = $x")
-      case Failure(ex) => println(s"result1 failed by $ex")
+      case Success(x) => println(s"result1 = $x (${getDuration(startTime)} ms)")
+      case Failure(ex) => println(s"result1 failed by $ex (${getDuration(startTime)} ms)")
     }
     result2.onComplete {
-      case Success(x) => println(s"result2 = $x")
-      case Failure(ex) => println(s"result2 failed by $ex")
+      case Success(x) => println(s"result2 = $x (${getDuration(startTime)} ms)")
+      case Failure(ex) => println(s"result2 failed by $ex (${getDuration(startTime)} ms)")
     }
-    println("Finished executing" + Console.RESET)
+  }
+
+  def alotOfParallelExecution(startTime: Long): Unit = {
+    val futureFn = (x: Int) => Future(delayedComputation(power, 500)(x))
+    val futureResult: List[Future[Int]] = (1 to 10)
+      .map(futureFn)
+      .toList
+    Future.sequence(futureResult)
+      .map(_.sum)
+      .foreach(total => {
+        println(s"Total summary result of power 1 to 10 is $total (${getDuration(startTime)} ms)")
+      })
+
   }
 
 
