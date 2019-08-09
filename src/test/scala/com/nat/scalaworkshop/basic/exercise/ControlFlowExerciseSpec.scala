@@ -1,4 +1,4 @@
-package com.nat.scalaworkshop.basic
+package com.nat.scalaworkshop.basic.exercise
 
 import org.scalatest.{FreeSpec, Matchers}
 
@@ -13,7 +13,6 @@ class ControlFlowExerciseSpec extends FreeSpec with Matchers {
     controlFlowExample isPalindrome "Kayak" shouldBe "Yes"
     controlFlowExample isPalindrome "Level" shouldBe "Yes"
     controlFlowExample isPalindrome "Clock" shouldBe "No"
-
   }
 
   "conversion from int to date should work correctly" ignore {

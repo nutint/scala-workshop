@@ -1,4 +1,4 @@
-package com.nat.scalaworkshop.basic
+package com.nat.scalaworkshop.basic.exercise
 
 class ControlFlowExercise {
 
