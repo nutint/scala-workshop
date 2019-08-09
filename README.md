@@ -14,7 +14,7 @@ This session covers from Scala basics, and create a microservice with scala
    ```
    resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
    ```
- * Install Intellij IDE
+ * Install [IntellijIDE](https://www.jetbrains.com/idea/) and install these plugins by yourself
    * Install Scala Plugins
    * Install PlantUML Integration Plugins   
  * Pre-Load dependencies (Console)
