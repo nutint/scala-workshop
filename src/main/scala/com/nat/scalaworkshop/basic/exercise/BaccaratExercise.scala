@@ -9,7 +9,7 @@ class BaccaratExercise {
     * @param hand2
     * @return
     */
-  def isHand1Win(hand1: Hand, hand2: Hand): Boolean = hand1 vs hand2
+  def isHand1Win(hand1: Hand, hand2: Hand): CompareResult = hand1 vs hand2
 
 }
 
@@ -61,7 +61,11 @@ object BaccaratExercise {
   }
 
   case class Hand(card1: Card, card2: Card, card3: Option[Card] = None) {
-    def vs(anotherHand: Hand): Boolean = ???
+    def vs(anotherHand: Hand): CompareResult = ???
     def calculateMultiplication(): Int = ???
   }
+
+  trait CompareResult
+  case object Win extends CompareResult
+  case object Lose extends CompareResult
 }

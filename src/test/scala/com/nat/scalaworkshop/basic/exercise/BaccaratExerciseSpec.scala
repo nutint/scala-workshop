@@ -6,7 +6,7 @@ class BaccaratExerciseSpec  extends FreeSpec with Matchers {
 
   import BaccaratExercise._
 
-  "versus engine should work correctly" ignore {
+  "[da, d2] against [d3, d5] should correct" ignore {
     val hand1 = Hand(
       Card("d", "a"),
       Card("d", "2")
@@ -17,6 +17,22 @@ class BaccaratExerciseSpec  extends FreeSpec with Matchers {
       Card("d", "5")
     )
 
-    hand1 vs hand2 shouldBe false
+    hand1 vs hand2 shouldBe Lose
   }
+
+  "[d2, s2] against [da, s3] should correct" ignore {
+    val hand1 = Hand(
+      Card("d", "2"),
+      Card("S", "2")
+    )
+
+    val hand2 = Hand(
+      Card("d", "a"),
+      Card("s", "3")
+    )
+
+    hand1 vs hand2 shouldBe Win
+  }
+
+  "feel free to add any other tests at this point" in pending
 }

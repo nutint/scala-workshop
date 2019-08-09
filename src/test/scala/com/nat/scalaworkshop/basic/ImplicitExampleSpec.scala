@@ -49,17 +49,21 @@ class ImplicitExampleSpec extends FreeSpec with Matchers {
     trait CanGreet[A] {
       def greet(a: A): String
     }
-    def greet[A](a: A)(implicit ai: CanGreet[A]): String = ai.greet(a)
+    implicit def greet[A](a: A)(implicit ai: CanGreet[A]): String = ai.greet(a)
 
     // Implement behavior for those type
     implicit val personCanGreet = new CanGreet[Person] {
       override def greet(a: Person): String = s"Hello my name is ${a.firstName + " " + a.lastName}"
     }
-    
+
     // Usages
     greet(Person("John", "Smith")) shouldBe "Hello my name is John Smith"
 //    greet(Dog("JaiDee")) shouldBe "Woof Woof!!"
 //    greet(Cat("Kitty")) shouldBe "Meaw Meaw"
+
+    val greetedPerson: String = Person("John", "Smith")
+    greetedPerson shouldBe "Hello my name is John Smith"
+
   }
 
 
