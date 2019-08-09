@@ -35,7 +35,6 @@ class FunctionSpec extends FreeSpec with Matchers {
   }
 
   "higher order function" in {
-
     case class MySet[A](fn: A=>Boolean) {
       def isMember(a: A): Boolean = fn(a)
       def union(mySet: MySet[A]) = MySet((a: A) => fn(a) || mySet.fn(a))
@@ -59,5 +58,17 @@ class FunctionSpec extends FreeSpec with Matchers {
     countOddNumberSet.isMember(0) shouldBe false
     countOddNumberSet.isMember(1) shouldBe true
     countOddNumberSet.isMember(2) shouldBe false
+  }
+
+  "curry function/method (Partially apply parameter function/method" in {
+
+    // methods
+    def myCurryMethod(a: Int)(b: Int)(c: Int) = a + b + c
+    val myCurryFunction = (a: Int) => (b: Int) => (c: Int) => a + b + c
+
+    val plus1Method = myCurryMethod(1) _ // convert method to function
+    val plus1Function = myCurryFunction(1)
+
+    plus1Method(3)(3) shouldBe plus1Function(4)(2)
   }
 }
