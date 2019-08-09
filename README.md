@@ -1,5 +1,5 @@
 # scala-workshop
-Scala experiment
+This session covers from Scala basics, and create a microservice with scala
 
 # Preparation
  * Install SBT
@@ -9,6 +9,11 @@ Scala experiment
    // Check the installation
    $ sbt sbtVersion
    ``` 
+ * Install [Scalatest](http://www.scalatest.org/) by following this step (For more information visit this page [Scalatest installation](http://www.scalatest.org/install))
+   open file `~/.sbt/0.13/global.sbt` then add the following line
+   ```
+   resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
+   ```
  * Install Intellij IDE
    * Install Scala Plugins
    * Install PlantUML Integration Plugins   
@@ -16,8 +21,9 @@ Scala experiment
    ```
    // in your project dir run this command
    $ sbt test
+   // This may failed if you not install scalatest completely see the following steps
    ```
-   
+ 
  * Pre-Load dependencies (IntellijIDE)
    * Import Projects
      * Open Intellij
