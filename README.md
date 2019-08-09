@@ -21,7 +21,6 @@ This session covers from Scala basics, and create a microservice with scala
    ```
    // in your project dir run this command
    $ sbt test
-   // This may failed if you not install scalatest completely see the following steps
    ```
  
  * Pre-Load dependencies (IntellijIDE)
