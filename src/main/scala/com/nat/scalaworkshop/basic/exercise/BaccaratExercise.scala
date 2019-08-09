@@ -3,14 +3,6 @@ package com.nat.scalaworkshop.basic.exercise
 class BaccaratExercise {
   import BaccaratExercise._
 
-  /**
-    * Rules (https://starvegasgame.com/วิธีเล่นไพ่ป๊อกเด้ง/)
-    * @param hand1
-    * @param hand2
-    * @return
-    */
-  def isHand1Win(hand1: Hand, hand2: Hand): CompareResult = hand1 vs hand2
-
 }
 
 /**
@@ -19,19 +11,23 @@ class BaccaratExercise {
   *  - Related types
   */
 object BaccaratExercise {
-  trait Card {
-    def rank: Rank = ???
-  }
-  case class Diamond(override val rank: Rank) extends Card
-  case class Clover(override val rank: Rank) extends Card
-  case class Heart(override val rank: Rank) extends Card
-  case class Spade(override val rank: Rank) extends Card
+
+  case class Card(suit: Suit, rank: Rank)
   object Card {
-    def apply(s: String, r: Rank): Card = s.toLowerCase match {
-      case "d" => Diamond(r)
-      case "c" => Clover(r)
-      case "h" => Heart(r)
-      case "s" => Spade(r)
+    def apply(s: String, r: String): Card = Card(Suit(s), Rank(r))
+  }
+
+  trait Suit
+  case object Diamond extends Suit
+  case object Clover extends Suit
+  case object Heart extends Suit
+  case object Spade extends Suit
+  object Suit {
+    def apply(s: String): Suit = s.toLowerCase match {
+      case "d" => Diamond
+      case "c" => Clover
+      case "h" => Heart
+      case "s" => Spade
     }
   }
 
@@ -42,7 +38,7 @@ object BaccaratExercise {
   case object Queen extends Rank
   case object King extends Rank
   object Rank {
-    implicit def stringToRank(s: String): Rank = s.toLowerCase match {
+    def apply(s: String): Rank = s.toLowerCase match {
       case "a" => Ace
       case "1" => Ace
       case "2" => Numeric(2)
@@ -60,12 +56,26 @@ object BaccaratExercise {
     }
   }
 
+  /**
+    * Rules (https://starvegasgame.com/วิธีเล่นไพ่ป๊อกเด้ง/)
+    */
   case class Hand(card1: Card, card2: Card, card3: Option[Card] = None) {
     def vs(anotherHand: Hand): CompareResult = ???
-    def calculateMultiplication(): Int = ???
+
+    def handPattern(): HandPattern = ???
   }
 
   trait CompareResult
   case object Win extends CompareResult
   case object Lose extends CompareResult
+  case object Draw extends CompareResult
+
+  trait HandPattern
+  case class RankDominated(score: Int) extends HandPattern
+  case class TwoOfAKindDominated(score: Int) extends HandPattern
+  case class ThreeOfAKindDominated(score: Int) extends HandPattern
+  case class StraightDominated(rank: Rank) extends HandPattern
+  case object RoyalCardDominated extends HandPattern
+  case object StraightFlushDominated extends HandPattern
+  case object RoyalStraightFlushDominated extends HandPattern
 }
