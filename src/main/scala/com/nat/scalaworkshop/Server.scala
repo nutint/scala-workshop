@@ -4,7 +4,9 @@ package com.nat.scalaworkshop
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.nat.scalaworkshop.config._
+import com.nat.scalaworkshop.utils.DateFactory
 import com.typesafe.config.ConfigFactory
+import org.mongodb.scala.MongoClient
 
 import scala.util.Try
 
