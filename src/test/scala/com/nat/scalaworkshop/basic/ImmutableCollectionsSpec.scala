@@ -76,7 +76,7 @@ class ImmutableCollectionsSpec extends FreeSpec with Matchers{
     }
 
     "with pattern matching" in {
-      val getSecondElement = (aList: List[String]) => aList match {
+      val getSecondElement: List[String] => Option[String] = (aList: List[String]) => aList match {
         case _ :: b :: _ => Some(b)
         case _ => None
       }

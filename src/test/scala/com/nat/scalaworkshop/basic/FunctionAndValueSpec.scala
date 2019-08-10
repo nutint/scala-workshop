@@ -22,10 +22,14 @@ class FunctionAndValueSpec extends FreeSpec with Matchers {
 
     "defining functions" in {
       // Function with single parameters
-      val f1: Int => String = (a: Int) => a.toString
+      val f0: String = "xxxx"
+      val f1: Int => String = (a: Int) => a.toString // Full
       val f2 = (a: Int) => a.toString // Use type inference
       val f3: Int => String = _.toString // single parameter can be shorthanded by using _
       // val function4 = _.toString // compile error because the compiler cannot infer type of the parameters
+
+      ((a: Int) => a.toString)(3) shouldBe f1(3)
+
 
       f1(1).shouldBe(f2(1))
       f1(1) shouldBe f2(1)
@@ -54,7 +58,7 @@ class FunctionAndValueSpec extends FreeSpec with Matchers {
     "defining class in scala" in {
       class C1() { println("C1 created") }
       class C2(param: Int) { println(s"C2 created with parameter $param")}
-      class C3[A](param: A) { println(s"C3 created with parameter $param")}
+      class C3[YOD](param: YOD) { println(s"C3 created with parameter $param")}
     }
 
     "defining class with different types of members" in {

@@ -67,7 +67,7 @@ class FutureExample {
   def dependenciesBetweenFutures(startTime: Long): Unit = {
     val result: Future[Int] = for {
       result1 <- Future(delayedComputation(power, 1000)(5))
-      result2 <- Future(delayedComputation(powerWithout10, 1000)(10))
+      result2 <- Future(delayedComputation(power, 1000)(10))
       result3 <- Future(delayedComputation(power, 1000)(result2 - result1))
     } yield result1 + result2 + result3
 
@@ -76,6 +76,4 @@ class FutureExample {
       case Failure(ex) => println(s"result failed by $ex (${getDuration(startTime)} ms)")
     }
   }
-
-
 }

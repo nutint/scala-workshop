@@ -26,6 +26,7 @@ class ImplicitExampleSpec extends FreeSpec with Matchers {
     case class Person(name: String) {
       def greet: String = s"hello $name"
     }
+    case class Dog(name: String)
 
     implicit class SayGoodbye(person: Person) {
       def sayGoodbye: String = s"goodbye ${person.name}"
@@ -33,6 +34,13 @@ class ImplicitExampleSpec extends FreeSpec with Matchers {
 
     val mrJohn = Person("John")
     mrJohn.sayGoodbye shouldBe "goodbye John"
+    Dog("Jaidee").sayGoodbye shouldBe "goodbye woof woof Jaidee"
+
+    implicit class SayGoodbyeDog(dog: Dog) {
+      def sayGoodbye: String = s"goodbye woof woof ${dog.name}"
+    }
+
+
   }
 
   /**

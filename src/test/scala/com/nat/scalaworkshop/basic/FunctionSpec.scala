@@ -12,7 +12,7 @@ class FunctionSpec extends FreeSpec with Matchers {
       val fn3 = (x: Int) => x + 7
 
       val composed1 = fn1 compose fn2 compose fn3 // composed1 = fn1(fn2(fn3(x)))
-      val composed2 = fn1 andThen fn2 andThen fn3
+      val composed2 = fn1 andThen fn2 andThen fn3 // andThen fn3(fn2(fn1(x)))
 
       composed1(2) shouldBe 64
       composed2(2) shouldBe 10
@@ -44,6 +44,7 @@ class FunctionSpec extends FreeSpec with Matchers {
     val countNumberSet = MySet((x: Int) => x > 0)
     val evenNumberSet = MySet((x: Int) => x % 2 == 0)
     val oddNumberSet = MySet((x: Int) => x % 2 == 1)
+    val minusNumberSet = MySet((x: Int) => x < 0)
 
     countNumberSet.isMember(-1) shouldBe false
     countNumberSet.isMember(0) shouldBe false
@@ -64,6 +65,7 @@ class FunctionSpec extends FreeSpec with Matchers {
 
     // methods
     def myCurryMethod(a: Int)(b: Int)(c: Int) = a + b + c
+    // function
     val myCurryFunction = (a: Int) => (b: Int) => (c: Int) => a + b + c
 
     val plus1Method = myCurryMethod(1) _ // convert method to function
