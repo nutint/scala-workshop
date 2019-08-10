@@ -1,5 +1,7 @@
 package com.nat.scalaworkshop.basic
 
+import java.util.Date
+
 import org.scalatest.{FreeSpec, Matchers}
 
 class ADTsAndTraitsSpecs extends FreeSpec with Matchers {
