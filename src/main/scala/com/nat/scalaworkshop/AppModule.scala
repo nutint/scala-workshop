@@ -5,6 +5,8 @@ import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
 import com.nat.scalaworkshop.basic.FutureExample
 import com.nat.scalaworkshop.config._
+import com.nat.scalaworkshop.logic.people.repository.PeopleRepository
+import com.nat.scalaworkshop.logic.people.repository.mongo.PeopleMongoRepository
 import com.nat.scalaworkshop.utils.DateFactory
 import org.mongodb.scala.MongoClient
 
@@ -22,6 +24,8 @@ class AppModule(
 
   implicit val mongoClient = MongoClient(mongoConfig.uri)
   implicit val dateFactory = new DateFactory
+
+  override lazy val peopleRepository: PeopleRepository = new PeopleMongoRepository("users")
 
   def startService(): Unit = {
     val bindingFuture = Http().bindAndHandle(api, appConfig.serverConfig.host, appConfig.serverConfig.port)

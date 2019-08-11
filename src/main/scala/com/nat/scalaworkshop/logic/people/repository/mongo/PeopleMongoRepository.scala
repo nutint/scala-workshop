@@ -11,7 +11,7 @@ import org.mongodb.scala.MongoClient
 
 import scala.concurrent.ExecutionContext
 
-class JobMongoRepository(
+class PeopleMongoRepository(
   collectionName: String
 )(
   implicit executionContext: ExecutionContext,

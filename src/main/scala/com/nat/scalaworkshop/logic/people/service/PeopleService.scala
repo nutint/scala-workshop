@@ -28,6 +28,6 @@ trait PeopleService
     EitherT(peopleRepository.deletePerson(id))
 
   def updatePerson(id: String, firstName: String, lastName: String): ServiceRes[Person] =
-    EitherT(peopleRepository.updatePerson(id, Person(None, firstName, lastName)))
+    EitherT(peopleRepository.updatePerson(id, Person(Some(id), firstName, lastName)))
 
 }

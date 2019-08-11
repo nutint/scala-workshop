@@ -1,13 +1,14 @@
 package com.nat.scalaworkshop.logic.people.route
 
-object PeopleRouteEntities {
-  case class CreatePersonEntity(firstName: String, lastName: String)
-  case class UpdatePersonEntity(firstName: String, lastName: String)
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import spray.json.DefaultJsonProtocol
 
-  import spray.json.DefaultJsonProtocol._
-  import spray.json._
-  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+object PeopleRouteEntities extends DefaultJsonProtocol with SprayJsonSupport{
+  case class PersonEntity(firstName: String, lastName: String)
 
-  implicit val createPersonEntity: JsonFormat[CreatePersonEntity] = jsonFormat2(CreatePersonEntity.apply)
-  implicit val updatePersonEntity: JsonFormat[UpdatePersonEntity] = jsonFormat2(UpdatePersonEntity.apply)
+//  import spray.json.DefaultJsonProtocol._
+//  import spray.json._
+//  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+
+  implicit def createPersonEntity= jsonFormat2(PersonEntity)
 }
