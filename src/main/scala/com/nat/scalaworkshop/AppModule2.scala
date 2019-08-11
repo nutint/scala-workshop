@@ -9,8 +9,9 @@ import akka.stream.ActorMaterializer
 import com.nat.scalaworkshop.config.{AppConfig, BuildConfigDevelopment, BuildConfigProduction}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.mongodb.scala.{Completed, MongoClient, Observer, Subscription}
+import org.mongodb.scala.bson.collection.immutable.Document
 import spray.json._
 
 import scala.concurrent.ExecutionContext
@@ -25,7 +26,13 @@ class AppModule2 (
 
   implicit val ec: ExecutionContext = system.dispatcher
 
-  val todoService: TodoService = new TodoService
+  val mongoClient = MongoClient(appConfig.mongoConfig.uri)
+
+  val todoMongoRepo: TodoMongoRepository = new TodoMongoRepository(mongoClient)
+  val todoInmemRepo: TodoInMemRepository = new TodoInMemRepository()
+  val todoService: TodoService = new TodoService(todoInmemRepo)
+
+  todoMongoRepo.insertNewItem()
 
   implicit val todoItemFormat = jsonFormat3(Todo)
 
@@ -140,4 +147,34 @@ class TodoInMemRepository extends TodoRepository {
         newTodo
       }
   }
+}
+
+class TodoMongoRepository(mongoClient: MongoClient) extends TodoRepository {
+
+  val database = mongoClient.getDatabase("todoApp")
+  val collection = database.getCollection("todos")
+
+  def insertNewItem() = {
+    val newDocument = Document("_id" -> 0, "name" -> "MongoDB", "type" -> "database",
+      "count" -> 1, "info" -> Document("x" -> 203, "y" -> 102))
+    collection
+      .insertOne(newDocument)
+      .subscribe(new Observer[Completed] {
+        override def onComplete(): Unit = println("completed")
+
+        override def onNext(result: Completed): Unit = println("onNext")
+
+        override def onError(e: Throwable): Unit = println(s"onError $e")
+      })
+  }
+
+  override def addTodo(title: String): Todo = ???
+
+  override def getAllTodos: List[Todo] = ???
+
+  override def getById(id: String): Option[Todo] = ???
+
+  override def deleteById(id: String): Unit = ???
+
+  override def updateById(id: String, title: String): Option[Todo] = ???
 }
