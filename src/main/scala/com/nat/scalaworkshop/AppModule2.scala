@@ -33,8 +33,6 @@ class AppModule2 (
   val todoInmemRepo: TodoInMemRepository = new TodoInMemRepository()
   val todoService: TodoService = new TodoService(todoMongoRepo)
 
-  todoMongoRepo.insertNewItem()
-
   implicit val todoItemFormat = jsonFormat3(Todo)
 
   /**
@@ -114,6 +112,10 @@ class TodoService(repository: TodoRepository) {
   def deleteById(id: String): Unit = repository.deleteById(id)
 
   def updateById(id: String, title: String): Option[Todo] = repository.updateById(id, title)
+}
+
+class TodoApi(todoRepository: TodoRepository) {
+
 }
 
 case class Todo(id: String, title: String, done: Boolean)
