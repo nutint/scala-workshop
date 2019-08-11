@@ -88,24 +88,50 @@ class AppModule2 (
   }
 }
 
-class TodoService {
+class TodoService(repository: TodoRepository) {
+  def addTodo(title: String): Todo = repository.addTodo(title)
+
+  def getAllTodos: List[Todo] = repository.getAllTodos
+
+  def getById(id: String): Option[Todo] = repository.getById(id)
+
+  def deleteById(id: String): Unit = repository.deleteById(id)
+
+  def updateById(id: String, title: String): Option[Todo] = repository.updateById(id, title)
+}
+
+case class Todo(id: String, title: String, done: Boolean)
+
+trait TodoRepository {
+  def addTodo(title: String): Todo = ???
+
+  def getAllTodos: List[Todo] = ???
+
+  def getById(id: String): Option[Todo] = ???
+
+  def deleteById(id: String): Unit = ???
+
+  def updateById(id: String, title: String): Option[Todo] = ???
+}
+
+class TodoInMemRepository extends TodoRepository {
   var todos: List[Todo] = Nil
 
-  def addTodo(title: String): Todo = {
+  override def addTodo(title: String): Todo = {
     val newTodo = Todo(UUID.randomUUID().toString, title, false)
     todos = newTodo :: todos
     newTodo
   }
 
-  def getAllTodos: List[Todo] = todos
+  override def getAllTodos: List[Todo] = todos
 
-  def getById(id: String): Option[Todo] = todos.find(_.id == id)
+  override def getById(id: String): Option[Todo] = todos.find(_.id == id)
 
-  def deleteById(id: String): Unit = {
+  override def deleteById(id: String): Unit = {
     todos = todos.filter(_.id != id)
   }
 
-  def updateById(id: String, title: String): Option[Todo] = {
+  override def updateById(id: String, title: String): Option[Todo] = {
     todos
       .find(_.id == id)
       .map { foundTodo =>
@@ -115,5 +141,3 @@ class TodoService {
       }
   }
 }
-
-case class Todo(id: String, title: String, done: Boolean)
