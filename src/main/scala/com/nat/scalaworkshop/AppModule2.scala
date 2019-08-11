@@ -10,7 +10,7 @@ import com.nat.scalaworkshop.config.{AppConfig, BuildConfigDevelopment, BuildCon
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import org.mongodb.scala.{Completed, MongoClient, Observer, Subscription}
+import org.mongodb.scala.{Completed, MongoClient, MongoCollection, Observer, Subscription}
 import org.mongodb.scala.bson.collection.immutable.Document
 import spray.json._
 
@@ -151,14 +151,20 @@ class TodoInMemRepository extends TodoRepository {
 
 class TodoMongoRepository(mongoClient: MongoClient) extends TodoRepository {
 
-  val database = mongoClient.getDatabase("todoApp")
-  val collection = database.getCollection("todos")
+  import org.mongodb.scala.bson.codecs.Macros._
+  import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
+  import org.bson.codecs.configuration.CodecRegistries.{fromRegistries, fromProviders}
+
+  val codecRegistry = fromRegistries(fromProviders(classOf[Todo]), DEFAULT_CODEC_REGISTRY )
+  val database = mongoClient.getDatabase("todoApp").withCodecRegistry(codecRegistry)
+  val collection: MongoCollection[Todo] = database.getCollection("todos")
 
   def insertNewItem() = {
-    val newDocument = Document("_id" -> 0, "name" -> "MongoDB", "type" -> "database",
-      "count" -> 1, "info" -> Document("x" -> 203, "y" -> 102))
+//    val newDocument = Document("_id" -> 0, "name" -> "MongoDB", "type" -> "database",
+//      "count" -> 1, "info" -> Document("x" -> 203, "y" -> 102))
+    val newTodo = Todo("xxx", "myNewTodo", false)
     collection
-      .insertOne(newDocument)
+      .insertOne(newTodo)
       .subscribe(new Observer[Completed] {
         override def onComplete(): Unit = println("completed")
 
