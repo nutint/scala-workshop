@@ -10,6 +10,9 @@ import com.nat.scalaworkshop.config.{AppConfig, BuildConfigDevelopment, BuildCon
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import spray.json._
+
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 
@@ -18,11 +21,13 @@ class AppModule2 (
 ) (
   implicit system: ActorSystem,
   materializer: ActorMaterializer
-) {
+) extends  SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val ec: ExecutionContext = system.dispatcher
 
   val todoService: TodoService = new TodoService
+
+  implicit val todoItemFormat = jsonFormat3(Todo)
 
   /**
     * Features
@@ -37,22 +42,22 @@ class AppModule2 (
     pathPrefix("todos") {
       pathEnd {
         get {
-          complete(todoService.getAllTodos.toString)
+          complete(todoService.getAllTodos)
         } ~
         post {
           entity(as[String]) { itemName =>
-            complete(todoService.addTodo(itemName).toString)
+            complete(todoService.addTodo(itemName))
           }
         }
       } ~
       pathPrefix(Segment) { id: String =>
         pathEnd {
           get {
-            complete(todoService.getById(id).toString)
+            complete(todoService.getById(id))
           } ~
           put {
             entity(as[String]) { itemName =>
-              complete(todoService.updateById(id, itemName).toString)
+              complete(todoService.updateById(id, itemName))
             }
           } ~
           delete {
