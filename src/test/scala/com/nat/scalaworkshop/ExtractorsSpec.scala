@@ -38,6 +38,10 @@ class ExtractorsSpec extends FreeSpec with Matchers with MockitoSugar {
         extractConfig[AppConfig](beingExtractedConfig) ==
         AppConfig(
           BuildConfigDevelopment,
+          HttpServerConfig(
+            "0.0.0.0",
+            8000
+          ),
           MongoConfig(
             "mongodb://root:password@localhost:27017/admin",
             "mydb"
