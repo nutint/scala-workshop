@@ -14,8 +14,9 @@ import org.mongodb.scala.{Completed, MongoClient, MongoCollection, Observer, Sub
 import org.mongodb.scala.bson.collection.immutable.Document
 import spray.json._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
+import scala.util._
 
 class AppModule2 (
   appConfig: AppConfig
@@ -30,7 +31,7 @@ class AppModule2 (
 
   val todoMongoRepo: TodoMongoRepository = new TodoMongoRepository(mongoClient)
   val todoInmemRepo: TodoInMemRepository = new TodoInMemRepository()
-  val todoService: TodoService = new TodoService(todoInmemRepo)
+  val todoService: TodoService = new TodoService(todoMongoRepo)
 
   todoMongoRepo.insertNewItem()
 
@@ -49,11 +50,17 @@ class AppModule2 (
     pathPrefix("todos") {
       pathEnd {
         get {
-          complete(todoService.getAllTodos)
+          onComplete(todoService.getAllTodos) {
+            case Success(x) => complete(x)
+            case Failure(exception) => complete(s"exception occurred $exception")
+          }
         } ~
         post {
           entity(as[String]) { itemName =>
-            complete(todoService.addTodo(itemName))
+            onComplete(todoService.addTodo(itemName)) {
+              case Success(x) => complete(x)
+              case Failure(exception) => complete(s"exception occurred $exception")
+            }
           }
         }
       } ~
@@ -96,9 +103,11 @@ class AppModule2 (
 }
 
 class TodoService(repository: TodoRepository) {
-  def addTodo(title: String): Todo = repository.addTodo(title)
+  def addTodo(title: String): Future[Todo] = repository.addTodo {
+    Todo(UUID.randomUUID().toString, title, true)
+  }
 
-  def getAllTodos: List[Todo] = repository.getAllTodos
+  def getAllTodos: Future[List[Todo]] = repository.getAllTodos
 
   def getById(id: String): Option[Todo] = repository.getById(id)
 
@@ -110,9 +119,9 @@ class TodoService(repository: TodoRepository) {
 case class Todo(id: String, title: String, done: Boolean)
 
 trait TodoRepository {
-  def addTodo(title: String): Todo = ???
+  def addTodo(todo: Todo): Future[Todo] = ???
 
-  def getAllTodos: List[Todo] = ???
+  def getAllTodos: Future[List[Todo]] = ???
 
   def getById(id: String): Option[Todo] = ???
 
@@ -124,13 +133,12 @@ trait TodoRepository {
 class TodoInMemRepository extends TodoRepository {
   var todos: List[Todo] = Nil
 
-  override def addTodo(title: String): Todo = {
-    val newTodo = Todo(UUID.randomUUID().toString, title, false)
-    todos = newTodo :: todos
-    newTodo
+  override def addTodo(todo: Todo): Future[Todo] = {
+    todos = todo :: todos
+    Future.successful(todo)
   }
 
-  override def getAllTodos: List[Todo] = todos
+  override def getAllTodos: Future[List[Todo]] = Future.successful(todos)
 
   override def getById(id: String): Option[Todo] = todos.find(_.id == id)
 
@@ -149,7 +157,7 @@ class TodoInMemRepository extends TodoRepository {
   }
 }
 
-class TodoMongoRepository(mongoClient: MongoClient) extends TodoRepository {
+class TodoMongoRepository(mongoClient: MongoClient)(implicit ec: ExecutionContext) extends TodoRepository {
 
   import org.mongodb.scala.bson.codecs.Macros._
   import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
@@ -174,9 +182,19 @@ class TodoMongoRepository(mongoClient: MongoClient) extends TodoRepository {
       })
   }
 
-  override def addTodo(title: String): Todo = ???
+  override def addTodo(todo: Todo): Future[Todo] = {
+    collection
+      .insertOne(todo)
+      .toFuture()
+      .map(_=>todo)
+  }
 
-  override def getAllTodos: List[Todo] = ???
+  override def getAllTodos: Future[List[Todo]] = {
+    collection
+      .find()
+      .toFuture()
+      .map(_.toList)
+  }
 
   override def getById(id: String): Option[Todo] = ???
 
