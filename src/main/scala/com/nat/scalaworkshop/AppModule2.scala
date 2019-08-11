@@ -40,7 +40,9 @@ class AppModule2 (
           complete(todoService.getAllTodos.toString)
         } ~
         post {
-          complete(todoService.addTodo("newItem").toString)
+          entity(as[String]) { itemName =>
+            complete(todoService.addTodo(itemName).toString)
+          }
         }
       } ~
       pathPrefix(Segment) { id: String =>
@@ -49,7 +51,9 @@ class AppModule2 (
             complete(todoService.getById(id).toString)
           } ~
           put {
-            complete(todoService.updateById(id, "newTitle").toString)
+            entity(as[String]) { itemName =>
+              complete(todoService.updateById(id, itemName).toString)
+            }
           } ~
           delete {
             complete(todoService.deleteById(id).toString)
