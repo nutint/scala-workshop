@@ -12,6 +12,81 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class RouteSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
+  "Playing with directives" should {
+    val testRoute =
+      concat(
+        get {
+          complete("Received GET")
+        },
+        complete("success")
+      )
+
+    "test route should return success" in {
+      Delete("xxxxx") ~> testRoute ~> check {
+        status shouldBe StatusCodes.OK
+        responseAs[String] shouldBe "success"
+      }
+    }
+
+    val postRouteWhichAcceptString =
+      post {
+        entity(as[String]) { userInput: String =>
+          complete(s"received post method with string parameter as $userInput")
+        }
+      }
+
+    "test post method that receive string as body" in {
+      Post("/", "post content") ~> postRouteWhichAcceptString ~> check {
+        status shouldBe StatusCodes.OK
+        responseAs[String] shouldBe "received post method with string parameter as post content"
+      }
+    }
+
+    val helloRoute =
+      pathEnd {
+        get {
+          complete("receive api [GET] /hello")
+        } ~
+        post {
+          complete("receive api [POST] /hello")
+        }
+      }
+
+    val goodByeRoute =
+      pathPrefix("goodbye") {
+        pathEnd {
+          get {
+            complete("receive api [GET] /goodbye")
+          }
+        }
+      }
+
+    val postRouteWithPath =
+      pathPrefix("hello") {
+        helloRoute
+      } ~
+      goodByeRoute
+
+    "test get with path hello" in {
+      Get("/hello") ~> postRouteWithPath ~> check {
+        status shouldBe StatusCodes.OK
+        responseAs[String] shouldBe "receive api [GET] /hello"
+      }
+
+      Post("/hello") ~> postRouteWithPath ~> check {
+        status shouldBe StatusCodes.OK
+        responseAs[String] shouldBe "receive api [POST] /hello"
+      }
+
+      Get("/goodbye") ~> postRouteWithPath ~> check {
+        status shouldBe StatusCodes.OK
+        responseAs[String] shouldBe "receive api [GET] /goodbye"
+      }
+    }
+
+
+  }
+
   "A Router" should {
     "list all tutorial" in {
 

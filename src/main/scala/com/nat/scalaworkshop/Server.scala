@@ -30,7 +30,7 @@ class Server
         system.terminate()
       },
       appConfig => {
-        val appModule = new AppModule(appConfig)
+        val appModule = new AppModule2(appConfig)
         appModule.startService()
         system.terminate()
     })

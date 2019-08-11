@@ -35,15 +35,15 @@ trait PeopleRoute
         get {
           handleNormalResponse(getPersonById(personId))
         } ~
-          put {
-            entity(as[Person]) { updatingPerson =>
-              val Person(_, first, last) = updatingPerson
-              handleNormalResponse(updatePerson(personId, first, last))
-            }
-          } ~
-          delete {
-            handleNormalResponse(deletePerson(personId))
+        put {
+          entity(as[Person]) { updatingPerson =>
+            val Person(_, first, last) = updatingPerson
+            handleNormalResponse(updatePerson(personId, first, last))
           }
+        } ~
+        delete {
+          handleNormalResponse(deletePerson(personId))
+        }
       }
     }
   }

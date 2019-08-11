@@ -12,9 +12,9 @@ trait HealthcheckRoute
         complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Pong</h1>"))
       }
     } ~
-      path ("healthcheck") {
-        get {
-          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Healthcheck</h1>"))
-        }
+    path ("healthcheck") {
+      get {
+        complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Healthcheck</h1>"))
       }
+    }
 }

@@ -12,7 +12,7 @@ trait ApiModule
   extends HealthcheckRoute
   with PeopleRoute
 {
-  implicit def ec: ExecutionContext
+  implicit def ec: ExecutionContext = ???
   val api: Route =
     cors () {
       healthCheckRoute ~

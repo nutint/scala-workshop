@@ -15,6 +15,7 @@ trait PeopleService
   lazy val peopleRepository: PeopleRepository = wire[PeopleRepository]
   implicit def ec: ExecutionContext
 
+  //Future[Either[ServiceError, A]]
   def getPeople: ServiceRes[List[Person]] =
     EitherT(peopleRepository.getAllPeople)
 
