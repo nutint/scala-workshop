@@ -1,5 +1,7 @@
 package com.nat.scalaworkshop
 
+import java.util.UUID
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
@@ -20,6 +22,8 @@ class AppModule2 (
 
   implicit val ec: ExecutionContext = system.dispatcher
 
+  val todoService: TodoService = new TodoService
+
   /**
     * Features
     *  - Add new item        [Post]   /todos
@@ -33,7 +37,23 @@ class AppModule2 (
     pathPrefix("todos") {
       pathEnd {
         get {
-          complete("all tutorials")
+          complete(todoService.getAllTodos.toString)
+        } ~
+        post {
+          complete(todoService.addTodo("newItem").toString)
+        }
+      } ~
+      pathPrefix(Segment) { id: String =>
+        pathEnd {
+          get {
+            complete(todoService.getById(id).toString)
+          } ~
+          put {
+            complete(todoService.updateById(id, "newTitle").toString)
+          } ~
+          delete {
+            complete(todoService.deleteById(id).toString)
+          }
         }
       }
     }
@@ -58,3 +78,33 @@ class AppModule2 (
     }
   }
 }
+
+class TodoService {
+  var todos: List[Todo] = Nil
+
+  def addTodo(title: String): Todo = {
+    val newTodo = Todo(UUID.randomUUID().toString, title, false)
+    todos = newTodo :: todos
+    newTodo
+  }
+
+  def getAllTodos: List[Todo] = todos
+
+  def getById(id: String): Option[Todo] = todos.find(_.id == id)
+
+  def deleteById(id: String): Unit = {
+    todos = todos.filter(_.id != id)
+  }
+
+  def updateById(id: String, title: String): Option[Todo] = {
+    todos
+      .find(_.id == id)
+      .map { foundTodo =>
+        val newTodo = foundTodo.copy(title = title)
+        todos = newTodo :: todos.filter(_.id != id)
+        newTodo
+      }
+  }
+}
+
+case class Todo(id: String, title: String, done: Boolean)
