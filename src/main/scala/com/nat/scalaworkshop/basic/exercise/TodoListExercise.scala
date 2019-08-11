@@ -20,4 +20,8 @@ object TodoListExercise {
     * @param logs
     */
   case class TodoList(items: List[Any], logs: List[Any])
+  case class Person(name: String, lastname: String)
+
+  val person = Person("xxx", "yyy")
+  val person2 = person.copy(name = "newName") // Person("newName", "yyy")
 }

@@ -28,9 +28,18 @@ object Extractors {
       }
   }
 
+  implicit object HttpServerConfigExtractor extends ConfigExtractor[HttpServerConfig] {
+    override def extract(config: Config): HttpServerConfig =
+      (Try(config.getString("host")), Try(config.getInt("port"))) match {
+        case (Success(host), Success(port)) => HttpServerConfig(host, port)
+        case _ => throw new IllegalArgumentException("Unable to load config: http-server")
+      }
+  }
+
   implicit object AppConfigExtractor extends ConfigExtractor[AppConfig] {
     override def extract(config: Config): AppConfig = AppConfig(
       extractConfig[BuildConfig](config),
+      extractConfig[HttpServerConfig](config, "http-server"),
       extractConfig[MongoConfig](config, "mongodb")
     )
   }

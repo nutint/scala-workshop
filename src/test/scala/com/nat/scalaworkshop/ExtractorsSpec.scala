@@ -31,14 +31,6 @@ class ExtractorsSpec extends FreeSpec with Matchers with MockitoSugar {
           |  database = "mydb"
           |}
           |
-          |app-logic {}
-          |
-          |firebase {
-          |  pathConfig = "/firebase-config/serviceAccountKey.json"
-          |  database = "https://test-11725.firebaseio.com"
-          |  apiKey = "AIzaSyBQGq6h4EVN3oRD_GZh4G9NkoqumNcrfuo"
-          |}
-          |
         """.stripMargin)
 
 
@@ -46,6 +38,10 @@ class ExtractorsSpec extends FreeSpec with Matchers with MockitoSugar {
         extractConfig[AppConfig](beingExtractedConfig) ==
         AppConfig(
           BuildConfigDevelopment,
+          HttpServerConfig(
+            "0.0.0.0",
+            8000
+          ),
           MongoConfig(
             "mongodb://root:password@localhost:27017/admin",
             "mydb"
