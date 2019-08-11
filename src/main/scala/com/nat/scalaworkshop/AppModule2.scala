@@ -23,65 +23,18 @@ class AppModule2 (
 ) (
   implicit system: ActorSystem,
   materializer: ActorMaterializer
-) extends  SprayJsonSupport with DefaultJsonProtocol {
+) {
 
   implicit val ec: ExecutionContext = system.dispatcher
 
   val mongoClient = MongoClient(appConfig.mongoConfig.uri)
 
   val todoMongoRepo: TodoMongoRepository = new TodoMongoRepository(mongoClient)
-  val todoInmemRepo: TodoInMemRepository = new TodoInMemRepository()
-  val todoService: TodoService = new TodoService(todoMongoRepo)
 
-  implicit val todoItemFormat = jsonFormat3(Todo)
-
-  /**
-    * Features
-    *  - Add new item        [Post]   /todos
-    *  - Get all             [GET]    /todos
-    *    - pending/done      [PUT]    /todos/{id}/status
-    *  - Edit current item   [PUT]    /todos/{id}
-    *  - remove              [DELETE] /todos/{id}
-    *  - Get by ID           [GET]    /todos/{id}
-    */
-  val route: Route =
-    pathPrefix("todos") {
-      pathEnd {
-        get {
-          onComplete(todoService.getAllTodos) {
-            case Success(x) => complete(x)
-            case Failure(exception) => complete(s"exception occurred $exception")
-          }
-        } ~
-        post {
-          entity(as[String]) { itemName =>
-            onComplete(todoService.addTodo(itemName)) {
-              case Success(x) => complete(x)
-              case Failure(exception) => complete(s"exception occurred $exception")
-            }
-          }
-        }
-      } ~
-      pathPrefix(Segment) { id: String =>
-        pathEnd {
-          get {
-            complete(todoService.getById(id))
-          } ~
-          put {
-            entity(as[String]) { itemName =>
-              complete(todoService.updateById(id, itemName))
-            }
-          } ~
-          delete {
-            complete(todoService.deleteById(id).toString)
-          }
-        }
-      }
-    }
-
+  val todoApi = new TodoApi(todoMongoRepo)
 
   def startService(): Unit = {
-    val bindingFuture = Http().bindAndHandle(route, appConfig.serverConfig.host, appConfig.serverConfig.port)
+    val bindingFuture = Http().bindAndHandle(todoApi.route, appConfig.serverConfig.host, appConfig.serverConfig.port)
     appConfig.buildConfig match {
       case BuildConfigDevelopment =>
         println(s"Running in development mode @port ${appConfig.serverConfig.port}")
@@ -114,8 +67,56 @@ class TodoService(repository: TodoRepository) {
   def updateById(id: String, title: String): Option[Todo] = repository.updateById(id, title)
 }
 
-class TodoApi(todoRepository: TodoRepository) {
+class TodoApi(todoRepository: TodoRepository)
+  extends SprayJsonSupport
+    with DefaultJsonProtocol
+{
+  val todoService: TodoService = new TodoService(todoRepository)
+  implicit val todoItemFormat = jsonFormat3(Todo)
+  /**
+    * Features
+    *  - Add new item        [Post]   /todos
+    *  - Get all             [GET]    /todos
+    *    - pending/done      [PUT]    /todos/{id}/status
+    *  - Edit current item   [PUT]    /todos/{id}
+    *  - remove              [DELETE] /todos/{id}
+    *  - Get by ID           [GET]    /todos/{id}
+    */
 
+  val route: Route =
+    pathPrefix("todos") {
+      pathEnd {
+        get {
+          onComplete(todoService.getAllTodos) {
+            case Success(x) => complete(x)
+            case Failure(exception) => complete(s"exception occurred ${exception.getMessage}")
+          }
+        } ~
+          post {
+            entity(as[String]) { itemName =>
+              onComplete(todoService.addTodo(itemName)) {
+                case Success(x) => complete(x)
+                case Failure(exception) => complete(s"exception occurred ${exception.getMessage}")
+              }
+            }
+          }
+      } ~
+        pathPrefix(Segment) { id: String =>
+          pathEnd {
+            get {
+              complete(todoService.getById(id))
+            } ~
+              put {
+                entity(as[String]) { itemName =>
+                  complete(todoService.updateById(id, itemName))
+                }
+              } ~
+              delete {
+                complete(todoService.deleteById(id).toString)
+              }
+          }
+        }
+    }
 }
 
 case class Todo(id: String, title: String, done: Boolean)

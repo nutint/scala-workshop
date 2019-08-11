@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.{Matchers, WordSpec}
-
 /**
   * This route spect is credited by https://www.codemunity.io/tutorials/akka-http-routing-primer/
   * Thanks for the author for helping us understand how to write routes using akka-http
